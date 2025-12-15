@@ -6,14 +6,14 @@ import json
 import time
 
 
-port = int(os.environ.get("PORT", 8080))
+port = int(os.environ.get("PORT", 18745))
 services = {
-    "minecraft": {
+    "Minecraft": {
         "service": "minecraft",
     },
-    "updog": {"service": "updog", "url": "http://updog.lan"},
-    "vpn": {"service": "openvpn@pl-waw.prod.surfshark.com_udp"},
-    "transmission": {"service": "transmission-daemon", "url": "http://torrent.lan"},
+    "Updog": {"service": "updog", "url": "http://updog.lan"},
+    "VPN": {"service": "openvpn@pl-waw.prod.surfshark.com_udp"},
+    "Transmission": {"service": "transmission-daemon", "url": "http://torrent.lan"},
 }
 ssh_user = "anders"
 ssh_server = "trufla.xyz"

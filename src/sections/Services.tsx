@@ -18,10 +18,10 @@ import { TbBrandOpenvpn } from "react-icons/tb";
 import { FaExternalLinkAlt } from "react-icons/fa";
 
 const serviceIcons: Record<string, IconType> = {
-  minecraft: TbBrandMinecraft,
-  transmission: SiTransmission,
-  updog: IoIosCloudDownload,
-  vpn: TbBrandOpenvpn,
+  Minecraft: TbBrandMinecraft,
+  Transmission: SiTransmission,
+  Updog: IoIosCloudDownload,
+  VPN: TbBrandOpenvpn,
 };
 
 export const Services: React.FC = () => {

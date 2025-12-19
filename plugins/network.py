@@ -1,5 +1,7 @@
 import urllib.request
 import subprocess
+from functools import lru_cache
+from .utils import get_ttl_hash
 
 
 def get_hostname():
@@ -9,7 +11,8 @@ def get_hostname():
     return result.stdout.strip()
 
 
-def check_external_ip():
+@lru_cache()
+def check_external_ip(cache_key=None):
     try:
         with urllib.request.urlopen("http://icanhazip.com", timeout=3) as response:
             return response.read().decode().strip()
@@ -39,6 +42,6 @@ def check_local_ip():
 def network_info():
     return {
         "hostname": get_hostname(),
-        "external_ip": check_external_ip(),
+        "external_ip": check_external_ip(get_ttl_hash(60)),
         "local_ip": check_local_ip(),
     }

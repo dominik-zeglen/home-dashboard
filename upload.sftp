@@ -2,7 +2,5 @@ cd /opt/dashboard
 put server.py server.py
 put requirements.txt requirements.txt
 put -r plugins
-cd /var/www/lab-dashboard
-lcd build
-put -r *
+put -r build/* public
 bye

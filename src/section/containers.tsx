@@ -3,6 +3,7 @@ import { DockerContainerStatus, useStatus } from "../api/status";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { API_HOST } from "../api/config.";
 
 function DockerContainer({
   name,
@@ -35,7 +36,7 @@ function DockerContainer({
 
 export function DockerContainerList() {
   const [search, setSearch] = React.useState("");
-  const media = useStatus("localhost:18745");
+  const media = useStatus(API_HOST);
   const node1 = useStatus("node1.local:18745");
 
   return (

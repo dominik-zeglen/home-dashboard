@@ -14,10 +14,11 @@ import { AlignHorizontalSpaceAroundIcon } from "lucide-react";
 import { Services } from "./section/services";
 import { TodoSection } from "./section/todo";
 import { Weather } from "./section/weather";
+import { API_HOST } from "./api/config.";
 
 const App: React.FC = () => {
   const [wide, setWide] = useState(true);
-  useStatus("localhost:18745");
+  useStatus(API_HOST);
 
   return (
     <div className="p-4">
@@ -59,7 +60,7 @@ const App: React.FC = () => {
           <DockerContainerList />
         </main>
         <aside className="md:w-64">
-          <Hardware hostname="localhost:18745" />
+          <Hardware hostname={API_HOST} />
           <Hardware hostname="node1.local:18745" />
         </aside>
       </div>

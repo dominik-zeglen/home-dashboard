@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PutService, useDeleteService, usePutService } from "../api/service";
+import { API_HOST } from "../api/config.";
 
 function Service({
   name,
@@ -84,7 +85,7 @@ function AddService() {
   });
 
   useEffect(() => {
-    setForm({ name: "", url: "", sv_name: "", hostname: "localhost:18745" });
+    setForm({ name: "", url: "", sv_name: "", hostname: API_HOST });
   }, [open]);
 
   const submit = (e: React.FormEvent) => {
@@ -145,7 +146,7 @@ function AddService() {
 
 export function Services() {
   const [search, setSearch] = React.useState("");
-  const media = useStatus("localhost:18745");
+  const media = useStatus(API_HOST);
   const node1 = useStatus("node1.local:18745");
 
   return (
@@ -162,7 +163,7 @@ export function Services() {
         {[
           media.data?.services.map((sv) => ({
             ...sv,
-            host: "localhost:18745",
+            host: API_HOST,
           })) ?? [],
           node1.data?.services.map((sv) => ({
             ...sv,

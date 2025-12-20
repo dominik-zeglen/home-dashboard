@@ -1,8 +1,10 @@
+import { API_HOST } from "./config.";
+
 export function callApi<T>(
   path: string,
   { host, ...options }: RequestInit & { host?: string } = {}
 ): Promise<T> {
-  return fetch(`http://${host ?? "localhost:18745"}/api/${path}`, {
+  return fetch(`http://${host ?? API_HOST}/api/${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...options.headers,

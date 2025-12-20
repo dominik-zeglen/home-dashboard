@@ -61,3 +61,14 @@ User running `server.py` needs to be added to following groups
 $ sudo usermod -aG video *user*
 $ sudo usermod -aG docker *user*
 ```
+
+## Environment variables
+
+Dashboard uses the following environment variables to properly function:
+
+- **OPENWEATHERMAP_API_KEY** - [openweathermap](https://openweathermap.org/) API key, needs registration
+
+Additionally, the following variables can be set:
+
+- **DEBUG** - `True`/`False`, enables http handler logging
+- **PORT** - use this to change server port

@@ -1,6 +1,7 @@
 from microdot import Microdot, Response, Request, send_file
 from microdot.cors import CORS
 import os
+from dotenv import load_dotenv
 
 from plugins.hardware import hardware_info
 from plugins.network import network_info
@@ -9,11 +10,12 @@ from plugins.docker import DockerPlugin
 from plugins.todo import TodoListPlugin
 from plugins.weather import WeatherPlugin
 
+load_dotenv()
+
 Response.default_content_type = "application/json"
 app = Microdot()
-cors = CORS()
-cors.initialize(app=app, handle_cors=True)
-cors.allowed_origins = "*"
+cors = CORS(allow_credentials=True, allowed_origins=["*"])
+cors.initialize(app=app)
 
 
 # services = {
@@ -63,7 +65,7 @@ todo_list = TodoListPlugin(app)
 weather = WeatherPlugin(app)
 
 
-@app.route("/api/status")
+@app.get("/api/status")
 def get_payload(request: Request):
     payload = {
         "services": services.get_payload(),
@@ -75,9 +77,14 @@ def get_payload(request: Request):
     return payload
 
 
-@app.route("/")
+@app.get("/")
 def index(request: Request):
-    return send_file("build/index.html")
+    return send_file("public/index.html")
+
+
+@app.get("/<path:path>")
+def public_files(request: Request, path: str):
+    return send_file(path)
 
 
 app.run(

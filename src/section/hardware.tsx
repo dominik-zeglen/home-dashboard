@@ -26,7 +26,9 @@ export function Hardware({ hostname }: HardwareProps) {
     <Card className="mb-4">
       <CardHeader>
         <CardTitle>{data?.network.hostname}</CardTitle>
-        <div className="text-xs text-gray-500">{data?.hardware.uptime}</div>
+        <div className="text-xs text-muted-foreground">
+          {data?.hardware.uptime}
+        </div>
       </CardHeader>
       <CardContent>
         {!!data?.hardware && (
@@ -50,15 +52,15 @@ export function Hardware({ hostname }: HardwareProps) {
 
             <div className="mb-4">
               <div>RAM</div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 {data.hardware.ram[1]} used / {data.hardware.ram[0]} total
               </div>
             </div>
 
-            <div>
+            <div className="mb-4">
               <div className="mb-1">Storage</div>
               {Object.entries(data.hardware.disk).map(([name, disk]) => (
-                <div className="mb-2 text-gray-500" key={name}>
+                <div className="mb-2 text-muted-foreground" key={name}>
                   <div className="text-xs">
                     <span>{name}</span>
                     <span className="float-right">
@@ -66,6 +68,20 @@ export function Hardware({ hostname }: HardwareProps) {
                     </span>
                   </div>
                   <Bar value={parseFloat(disk.percent)} />
+                </div>
+              ))}
+            </div>
+
+            <div className="text-muted-foreground">
+              <div className="mb-1 text-foreground">Network</div>
+              <div>
+                <span>{data.network.external_ip}</span>
+                <span className="ml-2">external</span>
+              </div>
+              {data.network.local_ip.map((ip) => (
+                <div>
+                  <span>{ip}</span>
+                  <span className="ml-2">local</span>
                 </div>
               ))}
             </div>

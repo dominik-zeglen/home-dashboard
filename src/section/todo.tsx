@@ -10,17 +10,18 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
+import { API_HOST } from "../api/config.";
 
 export function TodoSection() {
   const [content, setContent] = React.useState("");
-  const { data } = useTodos("localhost:18745");
+  const { data } = useTodos(API_HOST);
   const { mutate: createTodo } = usePutTodo();
   const { mutate: deleteTodo } = useDeleteTodo();
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    createTodo({ hostname: "localhost:18745", data: { content } });
+    createTodo({ hostname: API_HOST, data: { content } });
     setContent("");
 
     return false;
@@ -33,7 +34,7 @@ export function TodoSection() {
       </CardHeader>
       <CardContent>
         {data === undefined ? (
-          <Loader className="animate-spin mx-auto" />
+          <Loader className="animate-spin mx-auto mb-4" />
         ) : data.length ? (
           data?.map((todo) => (
             <div key={todo.id} className="mb-2 flex gap-2 justify-between">
@@ -42,9 +43,7 @@ export function TodoSection() {
                 size="icon"
                 variant="ghost"
                 className="ml-2 p-0.5 float-right relative bottom-1.5"
-                onClick={() =>
-                  deleteTodo({ hostname: "localhost:18745", id: todo.id })
-                }
+                onClick={() => deleteTodo({ hostname: API_HOST, id: todo.id })}
               >
                 <Check />
               </Button>

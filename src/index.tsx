@@ -5,7 +5,7 @@ import "./styles/globals.css";
 import clsx from "clsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useStatus } from "./api/status";
-import { Hardware } from "./section/hardware";
+import { AddDevice, Hardware } from "./section/hardware";
 import { DockerContainerList } from "./section/containers";
 import { Calendar } from "@/components/ui/calendar";
 import { ThemeSwitcher } from "./themeSwitcher";
@@ -16,10 +16,12 @@ import { TodoSection } from "./section/todo";
 import { Weather } from "./section/weather";
 import { API_HOST } from "./api/config.";
 import { Links } from "./section/links";
+import { useDevices } from "./api/devices";
 
 const App: React.FC = () => {
   const [wide, setWide] = useState(true);
   useStatus(API_HOST);
+  const { data: devices } = useDevices();
 
   return (
     <div className="p-4">
@@ -63,7 +65,10 @@ const App: React.FC = () => {
         </main>
         <aside className="md:w-64">
           <Hardware hostname={API_HOST} />
-          <Hardware hostname="node1.local:18745" />
+          {devices?.map((device) => (
+            <Hardware key={device.id} hostname={device.hostname} />
+          ))}
+          <AddDevice />
         </aside>
       </div>
     </div>

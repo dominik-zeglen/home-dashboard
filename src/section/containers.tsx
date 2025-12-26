@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { API_HOST } from "../api/config.";
 import { CheckCircle2, ChevronDown, ChevronUp, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useContainers } from "../api/docker";
+import { useDevices } from "../api/devices";
 
 function DockerContainer({
   name,
@@ -43,8 +45,8 @@ function DockerContainer({
 export function DockerContainerList() {
   const [open, setOpen] = React.useState(true);
   const [search, setSearch] = React.useState("");
-  const media = useStatus(API_HOST);
-  const node1 = useStatus("node1.local:18745");
+  const { data: devices } = useDevices();
+  const containers = useContainers();
 
   return (
     <Card className="mb-4">
@@ -70,17 +72,13 @@ export function DockerContainerList() {
             />
           </CardContent>
           <CardContent className="grid gap-2 grid-cols-[200px_80px_3fr_1fr_1fr]">
-            {[
-              media.data?.docker.map((container) => ({
-                ...container,
-                host: media.data.network.hostname,
-              })) ?? [],
-              node1.data?.docker.map((container) => ({
-                ...container,
-                host: node1.data.network.hostname,
-              })) ?? [],
-            ]
-              .flat()
+            {containers
+              .flatMap(({ data }, idx) =>
+                (data?.docker ?? []).map((container) => ({
+                  ...container,
+                  host: idx === 0 ? API_HOST : devices![idx - 1].hostname,
+                }))
+              )
               .sort((a, b) => Number(b.running) - Number(a.running))
               .filter(
                 (container) =>

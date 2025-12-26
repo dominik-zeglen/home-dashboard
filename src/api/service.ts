@@ -1,5 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQueries } from "@tanstack/react-query";
 import { createStatusOptions } from "./status";
+import { useDevices } from "./devices";
+import { API_HOST } from "./config.";
 
 export type PutService = {
   name: string;
@@ -48,5 +50,15 @@ export function useDeleteService(onSuccess?: () => void) {
       });
       onSuccess?.();
     },
+  });
+}
+
+export function useServices() {
+  const { data: devices } = useDevices();
+
+  return useQueries({
+    queries: [{ hostname: API_HOST }, ...(devices ?? [])].map(({ hostname }) =>
+      createStatusOptions(hostname)
+    ),
   });
 }

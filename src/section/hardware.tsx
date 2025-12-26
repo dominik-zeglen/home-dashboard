@@ -2,6 +2,20 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStatus } from "../api/status";
 import clsx from "clsx";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader, Plus, Trash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useDeleteDevice, useDevices, usePutDevice } from "../api/devices";
+import { API_HOST } from "../api/config.";
 
 type HardwareProps = {
   hostname: string;
@@ -21,11 +35,29 @@ function Bar({ className, value }: { className?: string; value: number }) {
 
 export function Hardware({ hostname }: HardwareProps) {
   const { data } = useStatus(hostname);
+  const { mutate: deleteDevice, isPending } = useDeleteDevice();
+  const { data: devices } = useDevices();
 
   return (
     <Card className="mb-4">
       <CardHeader>
-        <CardTitle>{data?.network.hostname}</CardTitle>
+        <div className="flex justify-between">
+          <CardTitle>{data?.network.hostname}</CardTitle>
+          {hostname !== API_HOST && (
+            <Button
+              className="relative bottom-1 left-1"
+              variant="outline"
+              color="destructive"
+              onClick={() =>
+                deleteDevice(
+                  devices!.find(({ hostname: h }) => h === hostname)!.id
+                )
+              }
+            >
+              {isPending ? <Loader className="animate-spin" /> : <Trash />}
+            </Button>
+          )}
+        </div>
         <div className="text-xs text-muted-foreground">
           {data?.hardware.uptime}
         </div>
@@ -89,5 +121,50 @@ export function Hardware({ hostname }: HardwareProps) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+export function AddDevice() {
+  const [open, setOpen] = React.useState(false);
+  const [form, setForm] = React.useState({
+    hostname: "",
+  });
+  const { mutate: putDevice, isPending } = usePutDevice();
+  const submit = (
+    e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    putDevice({ hostname: form.hostname });
+    setForm({ hostname: "" });
+    setOpen(false);
+    return false;
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="secondary" className="float-right">
+          <Plus /> Add Device
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Device</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>
+          <Input
+            value={form.hostname}
+            onChange={(e) => setForm({ ...form, hostname: e.target.value })}
+            placeholder="device.local:18745"
+          />
+        </DialogDescription>
+        <DialogFooter>
+          <Button type="submit" onClick={submit}>
+            {isPending ? <Loader className="animate-spin" /> : "Add Device"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

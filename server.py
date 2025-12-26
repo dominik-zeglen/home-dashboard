@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from pydantic import ValidationError
 
 from plugins.hardware import hardware_info
+from plugins.monitored_devices import MonitoredDevicesPlugin
 from plugins.network import network_info
 from plugins.service import ServicePlugin
 from plugins.docker import DockerPlugin
@@ -18,9 +19,8 @@ debug = os.getenv("DEBUG", "False").lower() == "true"
 
 Response.default_content_type = "application/json"
 app = Microdot()
-if debug:
-    cors = CORS(allowed_origins="*")
-    cors.initialize(app=app)
+cors = CORS(allowed_origins="*")
+cors.initialize(app=app)
 
 
 @app.errorhandler(ValidationError)
@@ -74,6 +74,7 @@ docker = DockerPlugin(app)
 todo_list = TodoListPlugin(app)
 weather = WeatherPlugin(app)
 links = LinkPlugin(app)
+monitored_devices = MonitoredDevicesPlugin(app)
 
 
 @app.get("/api/status")

@@ -14,8 +14,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PutService, useDeleteService, usePutService } from "../api/service";
+import {
+  PutService,
+  useDeleteService,
+  usePutService,
+  useServices,
+} from "../api/service";
 import { API_HOST } from "../api/config.";
+import { useDevices } from "../api/devices";
 
 function Service({
   name,
@@ -139,8 +145,8 @@ function AddService() {
 export function Services() {
   const [open, setOpen] = React.useState(true);
   const [search, setSearch] = React.useState("");
-  const media = useStatus(API_HOST);
-  const node1 = useStatus("node1.local:18745");
+  const { data: devices } = useDevices();
+  const services = useServices();
 
   return (
     <Card className="mb-4">
@@ -166,17 +172,13 @@ export function Services() {
             />
           </CardContent>
           <CardContent className="grid gap-2 grid-cols-[200px_70px_1fr_1fr_1fr_28px]">
-            {[
-              media.data?.services.map((sv) => ({
-                ...sv,
-                host: API_HOST,
-              })) ?? [],
-              node1.data?.services.map((sv) => ({
-                ...sv,
-                host: "node1.local:18745",
-              })) ?? [],
-            ]
-              .flat()
+            {services
+              .flatMap(({ data }, idx) =>
+                (data?.services ?? []).map((service) => ({
+                  ...service,
+                  host: idx === 0 ? API_HOST : devices![idx - 1].hostname,
+                }))
+              )
               .sort(
                 (a, b) =>
                   Number(b.status === "active") - Number(a.status === "active")
@@ -187,7 +189,7 @@ export function Services() {
                   service.sv_name.toLowerCase().includes(search.toLowerCase())
               )
               .map((service) => (
-                <Service key={service.sv_name} {...service} />
+                <Service key={service.sv_name + service.host} {...service} />
               ))}
           </CardContent>
         </>

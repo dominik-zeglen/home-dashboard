@@ -78,12 +78,12 @@ monitored_devices = MonitoredDevicesPlugin(app)
 
 
 @app.get("/api/status")
-def get_payload(request: Request):
+async def get_payload(request: Request):
     payload = {
         "services": services.get_payload(),
         "docker": docker.get_containers(),
         "hardware": hardware_info(),
-        "network": network_info(),
+        "network": await network_info(),
         # "ssh_tunnels": {port: check_tunnel(port) for port in ssh_tunnel_ports},
     }
     return payload

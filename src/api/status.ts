@@ -34,6 +34,12 @@ export type HardwareStatus = {
   uptime: string;
 };
 
+export type LocalIP = {
+  address: string;
+  device: string;
+  type: string;
+};
+
 export type NodeStatus = {
   services: ServiceStatus[];
   docker: DockerContainerStatus[];
@@ -41,7 +47,7 @@ export type NodeStatus = {
   network: {
     hostname: string;
     external_ip: string;
-    local_ip: string[];
+    local_ip: LocalIP[];
   };
 };
 

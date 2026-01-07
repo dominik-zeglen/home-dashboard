@@ -11,17 +11,24 @@ def get_uptime():
 
 
 def get_temperature():
-    for dir in os.listdir("/sys/class/thermal/"):
-        if dir.startswith("thermal_zone"):
-            try:
-                with open(f"/sys/class/thermal/{dir}/type", "r") as f:
-                    type_str = f.read().strip().lower()
-                    if "cpu" in type_str or "soc" in type_str or "pkg_temp" in type_str:
-                        with open(f"/sys/class/thermal/{dir}/temp", "r") as temp_f:
-                            temp_milli = int(temp_f.read().strip())
-                            return str(temp_milli / 1000.0)
-            except:
-                continue
+    try:
+        for dir in os.listdir("/sys/class/thermal/"):
+            if dir.startswith("thermal_zone"):
+                try:
+                    with open(f"/sys/class/thermal/{dir}/type", "r") as f:
+                        type_str = f.read().strip().lower()
+                        if (
+                            "cpu" in type_str
+                            or "soc" in type_str
+                            or "pkg_temp" in type_str
+                        ):
+                            with open(f"/sys/class/thermal/{dir}/temp", "r") as temp_f:
+                                temp_milli = int(temp_f.read().strip())
+                                return str(temp_milli / 1000.0)
+                except:
+                    continue
+    except:
+        pass
 
     try:
         result = subprocess.run(

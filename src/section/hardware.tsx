@@ -110,10 +110,10 @@ export function Hardware({ hostname }: HardwareProps) {
                 <span>{data.network.external_ip}</span>
                 <span className="ml-2">external</span>
               </div>
-              {data.network.local_ip.map((ip) => (
-                <div key={ip}>
-                  <span>{ip}</span>
-                  <span className="ml-2">local</span>
+              {data.network.local_ip.map(({ address, device }) => (
+                <div key={address}>
+                  <span>{address}</span>
+                  <span className="ml-2">{device}</span>
                 </div>
               ))}
             </div>

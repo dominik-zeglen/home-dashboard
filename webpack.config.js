@@ -68,7 +68,7 @@ const config = (env, argv) => {
     output: {
       path: path.resolve(__dirname, "build"),
       publicPath: dev ? "/" : "/public/",
-      filename: "bundle.[hash].js",
+      filename: "bundle.[fullhash].js",
     },
     plugins: [
       new HtmlWebpackPlugin({

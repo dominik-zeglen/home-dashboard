@@ -4,8 +4,7 @@ services:
     container_name: home-dashboard
     restart: unless-stopped
     pid: host
-    ports:
-      - "18745:18745"
+    network_mode: host
     environment:
       - PORT=18745
       - DEBUG=${DEBUG:-false}

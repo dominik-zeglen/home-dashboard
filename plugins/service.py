@@ -1,22 +1,14 @@
 import math
 from microdot import Microdot, Request
 from tinydb import TinyDB
+from dbus_fast.aio import MessageBus
+from dbus_fast import BusType
 
-DBUS_AVAILABLE = False
 _bus = None
-
-try:
-	from dbus_fast.aio import MessageBus
-	from dbus_fast import BusType
-	DBUS_AVAILABLE = True
-except ImportError:
-	pass
 
 
 async def get_bus():
 	global _bus
-	if not DBUS_AVAILABLE:
-		return None
 	if _bus is None:
 		try:
 			_bus = await MessageBus(bus_type=BusType.SYSTEM).connect()

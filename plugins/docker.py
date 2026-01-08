@@ -31,5 +31,5 @@ class DockerPlugin:
                 }
                 for container in containers
             ]
-        except:
+        except (OSError, json.JSONDecodeError, KeyError):
             return []

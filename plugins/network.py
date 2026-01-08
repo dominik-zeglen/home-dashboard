@@ -66,7 +66,6 @@ def check_external_ip(cache_key=None):
         return "?"
 
 
-# Get local IP addresses
 async def check_local_ip():
     ips = []
     bus_name = "org.freedesktop.NetworkManager"

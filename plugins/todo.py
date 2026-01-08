@@ -35,10 +35,9 @@ class TodoListPlugin:
             todos_table = db.table("todos")
             data = request.json
             todo = Todo(**data)
-            todo_id = todos_table.get(where("id") == int(id)).doc_id
             todos_table.update(
                 todo.model_dump(mode="json"),
-                doc_ids=[todo_id],
+                doc_ids=[int(id)],
             )
             return "", 204
 

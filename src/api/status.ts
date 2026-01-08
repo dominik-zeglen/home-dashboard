@@ -56,7 +56,7 @@ export function createStatusOptions(hostname: string) {
     queryKey: ["status", hostname],
     queryFn: () =>
       fetch(`http://${hostname}/api/status`).then(
-        (res) => res.json() as Promise<NodeStatus>
+        (res) => res.json() as Promise<NodeStatus>,
       ),
     refetchInterval: 5000,
   };

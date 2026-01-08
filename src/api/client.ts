@@ -2,7 +2,7 @@ import { API_HOST } from "./config.";
 
 export function callApi<T>(
   path: string,
-  { host, ...options }: RequestInit & { host?: string } = {}
+  { host, ...options }: RequestInit & { host?: string } = {},
 ): Promise<T> {
   return fetch(`http://${host ?? API_HOST}/api/${path}`, {
     headers: {
@@ -13,7 +13,7 @@ export function callApi<T>(
   }).then((res) => {
     if (!res.ok) {
       return Promise.reject(
-        new Error(`API call failed with status ${res.status}`)
+        new Error(`API call failed with status ${res.status}`),
       );
     }
 

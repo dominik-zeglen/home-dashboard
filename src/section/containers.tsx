@@ -79,7 +79,7 @@ export function DockerContainerList() {
                 (data?.docker ?? []).map((container) => ({
                   ...container,
                   host: idx === 0 ? API_HOST : devices![idx - 1].hostname,
-                }))
+                })),
               )
               .sort((a, b) => Number(b.running) - Number(a.running))
               .filter((container) =>
@@ -89,7 +89,7 @@ export function DockerContainerList() {
                   container.id.toLowerCase(),
                 ]
                   .join("\0\0")
-                  .includes(search.toLowerCase())
+                  .includes(search.toLowerCase()),
               )
               .map((container) => (
                 <DockerContainer key={container.id} {...container} />

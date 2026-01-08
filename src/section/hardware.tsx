@@ -26,7 +26,7 @@ function Bar({ className, value }: { className?: string; value: number }) {
     <div
       className={clsx(
         className,
-        "h-1 bg-primary rounded w-full transition-all min-w-[0.05rem]"
+        "h-1 bg-primary rounded w-full transition-all min-w-[0.05rem]",
       )}
       style={{ maxWidth: `${value}%` }}
     />
@@ -50,7 +50,7 @@ export function Hardware({ hostname }: HardwareProps) {
               color="destructive"
               onClick={() =>
                 deleteDevice(
-                  devices!.find(({ hostname: h }) => h === hostname)!.id
+                  devices!.find(({ hostname: h }) => h === hostname)!.id,
                 )
               }
             >
@@ -76,10 +76,11 @@ export function Hardware({ hostname }: HardwareProps) {
               CPU ({data.hardware.cpu_idle_percentages.all?.toFixed(1)}%)
             </div>
             <div className="grid gap-1 mb-4">
-              <Bar value={data.hardware.cpu_idle_percentages.core0} />
-              <Bar value={data.hardware.cpu_idle_percentages.core1} />
-              <Bar value={data.hardware.cpu_idle_percentages.core2} />
-              <Bar value={data.hardware.cpu_idle_percentages.core3} />
+              {Object.entries(data.hardware.cpu_idle_percentages)
+                .filter(([key]) => key !== "all")
+                .map(([key, value]) => (
+                  <Bar key={key} value={value as number} />
+                ))}
             </div>
 
             <div className="mb-4">
@@ -131,7 +132,7 @@ export function AddDevice() {
   });
   const { mutate: putDevice, isPending } = usePutDevice();
   const submit = (
-    e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>
+    e: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>,
   ) => {
     e.preventDefault();
     e.stopPropagation();

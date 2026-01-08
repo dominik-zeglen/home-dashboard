@@ -8,7 +8,7 @@ export function ThemeSwitcher() {
   const [theme, setTheme] = useLocalStorage<"light" | "dark">("theme", "dark");
   React.useEffect(() => {
     document.documentElement.classList.remove(
-      theme === "light" ? "dark" : "light"
+      theme === "light" ? "dark" : "light",
     );
     document.documentElement.classList.add(theme);
   }, [theme]);

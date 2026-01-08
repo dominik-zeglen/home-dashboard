@@ -8,7 +8,7 @@ export function useContainers() {
 
   return useQueries({
     queries: [{ hostname: API_HOST }, ...(devices ?? [])].map(({ hostname }) =>
-      createStatusOptions(hostname)
+      createStatusOptions(hostname),
     ),
   });
 }

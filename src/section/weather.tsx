@@ -27,7 +27,7 @@ function AddCity() {
   });
 
   const submit = (
-    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>
+    e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>,
   ) => {
     e.preventDefault();
     e.stopPropagation();

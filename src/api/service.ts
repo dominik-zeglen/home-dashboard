@@ -42,7 +42,7 @@ export function useDeleteService(onSuccess?: () => void) {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       ),
     onSuccess: (_data, variables) => {
       client.invalidateQueries({
@@ -58,7 +58,7 @@ export function useServices() {
 
   return useQueries({
     queries: [{ hostname: API_HOST }, ...(devices ?? [])].map(({ hostname }) =>
-      createStatusOptions(hostname)
+      createStatusOptions(hostname),
     ),
   });
 }

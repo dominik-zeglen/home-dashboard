@@ -17,17 +17,13 @@ def get_temperature():
                 try:
                     with open(f"/sys/class/thermal/{dir}/type", "r") as f:
                         type_str = f.read().strip().lower()
-                        if (
-                            "cpu" in type_str
-                            or "soc" in type_str
-                            or "pkg_temp" in type_str
-                        ):
+                        if "cpu" in type_str or "soc" in type_str or "pkg_temp" in type_str:
                             with open(f"/sys/class/thermal/{dir}/temp", "r") as temp_f:
                                 temp_milli = int(temp_f.read().strip())
                                 return str(temp_milli / 1000.0)
-                except:
+                except (OSError, ValueError):
                     continue
-    except:
+    except OSError:
         pass
 
     try:
@@ -39,7 +35,7 @@ def get_temperature():
         )
 
         return result.stdout.strip().split("=")[1].split("'")[0]
-    except:
+    except (OSError, IndexError):
         return "N/A"
 
 
@@ -85,7 +81,7 @@ def get_cpu_idle_percentages(interval=1.0):
         after = read_all_cpu_stats()
 
         return calculate_idle_percent(before, after)
-    except:
+    except (OSError, ValueError, KeyError):
         return {}
 
 
@@ -97,7 +93,7 @@ def get_used_and_total_ram():
         for line in result.stdout.splitlines():
             if "Mem:" in line:
                 return line.split()[1:4]
-    except:
+    except (OSError, IndexError):
         return ["N/A", "N/A", "N/A"]
 
 

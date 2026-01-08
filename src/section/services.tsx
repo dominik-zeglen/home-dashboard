@@ -179,16 +179,16 @@ export function Services() {
                 (data?.services ?? []).map((service) => ({
                   ...service,
                   host: idx === 0 ? API_HOST : devices![idx - 1].hostname,
-                }))
+                })),
               )
               .sort(
                 (a, b) =>
-                  Number(b.status === "active") - Number(a.status === "active")
+                  Number(b.status === "active") - Number(a.status === "active"),
               )
               .filter((service) =>
                 [service.name.toLowerCase(), service.sv_name.toLowerCase()]
                   .join("\0\0")
-                  .includes(search.toLowerCase())
+                  .includes(search.toLowerCase()),
               )
               .map((service) => (
                 <Service key={service.sv_name + service.host} {...service} />

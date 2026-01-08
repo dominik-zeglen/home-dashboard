@@ -19,6 +19,7 @@ class MonitoredDevicesPlugin:
             data = request.json
             device_input = DeviceInput(**data)
             table.insert(device_input.model_dump(mode="json"))
+            return "", 204
 
     def get_devices(self, request: Request):
         with TinyDB("db.json") as db:
@@ -32,3 +33,4 @@ class MonitoredDevicesPlugin:
         with TinyDB("db.json") as db:
             table = db.table("monitored_devices")
             table.remove(doc_ids=[int(device_id)])
+            return "", 204

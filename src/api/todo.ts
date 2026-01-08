@@ -5,7 +5,7 @@ export function createTodosOptions(hostname: string) {
     queryKey: ["todos", hostname],
     queryFn: () =>
       fetch(`http://${hostname}/api/todos`).then(
-        (res) => res.json() as Promise<{ id: number; content: string }[]>
+        (res) => res.json() as Promise<{ id: number; content: string }[]>,
       ),
   };
 }
@@ -46,14 +46,14 @@ export function useDeleteTodo(onSuccess?: () => void) {
     mutationFn: (variables: { hostname: string; id: number }) =>
       fetch(
         `http://${variables.hostname}/api/todos/${encodeURIComponent(
-          variables.id
+          variables.id,
         )}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       ),
     onSuccess: (_data, variables) => {
       client.invalidateQueries({

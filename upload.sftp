@@ -2,5 +2,6 @@ cd /opt/dashboard
 put server.py server.py
 put requirements.txt requirements.txt
 put -r plugins
-put -r build/* public
+put -r migrations
+put -r public
 bye

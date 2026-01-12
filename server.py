@@ -4,6 +4,11 @@ import os
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
+from migrations.migrate import run_migrations
+
+run_migrations()
+
+
 from plugins.hardware import hardware_info
 from plugins.monitored_devices import MonitoredDevicesPlugin
 from plugins.network import network_info
@@ -11,10 +16,10 @@ from plugins.docker import DockerPlugin
 from plugins.todo import TodoListPlugin
 from plugins.weather import WeatherPlugin
 from plugins.links import LinkPlugin
+from plugins.service import ServicePlugin
+
 
 load_dotenv()
-
-from plugins.service import ServicePlugin
 
 debug = os.getenv("DEBUG", "False").lower() == "true"
 
@@ -60,7 +65,10 @@ def favicon(request: Request):
 def public_files(request: Request, path: str):
     if ".." in path:
         return "Not found", 404
-    return send_file(path)
+    try:
+        return send_file(path)
+    except FileNotFoundError:
+        return "Not found", 404
 
 
 app.run(

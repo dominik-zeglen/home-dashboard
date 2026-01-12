@@ -1,3 +1,3 @@
 #!/bin/sh
 mkdir -p /app/data
-exec python server.py
+exec python -u server.py

@@ -82,7 +82,7 @@ const config = (env, argv) => {
       ],
     },
     output: {
-      path: path.resolve(__dirname, "build"),
+      path: path.resolve(__dirname, "public"),
       publicPath: dev ? "/" : "/public/",
       filename: "[name].[fullhash].js",
     },

@@ -3,155 +3,209 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Pin } from "lucide-react";
-import { useSystemdUnits, SystemdUnit, usePinService } from "../api/service";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Loader,
+  Pin,
+} from "lucide-react";
+import {
+  SystemdUnit,
+  usePinService,
+  useAllSystemdUnits,
+  useUnpinService,
+} from "../api/service";
+import { useDevices } from "../api/devices";
+import { API_HOST } from "../api/config.";
 
 const TABS = [
-	{ value: "all", label: "All" },
-	{ value: "active", label: "Active" },
-	{ value: "inactive", label: "Inactive" },
-	{ value: "failed", label: "Failed" },
+  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+  { value: "failed", label: "Failed" },
 ];
 
+const pageSize = 10;
+
 function Unit({
-	name,
-	state,
-	sub_state,
-	description,
-	pinned,
-	onPin,
-}: SystemdUnit & { onPin: () => void }) {
-	return (
-		<>
-			<Button
-				variant="ghost"
-				size="icon"
-				className="h-6 w-6"
-				onClick={onPin}
-				title={pinned ? "Unpin" : "Pin"}
-			>
-				<Pin className={`h-3 w-3 ${pinned ? "fill-current" : ""}`} />
-			</Button>
-			<span className="overflow-hidden text-ellipsis text-nowrap font-mono text-sm">
-				{name}
-			</span>
-			<Badge
-				variant={state === "active" ? "default" : state === "failed" ? "destructive" : "secondary"}
-				className="justify-self-center"
-			>
-				{sub_state}
-			</Badge>
-			<span className="text-sm text-muted-foreground overflow-hidden text-ellipsis text-nowrap">
-				{description}
-			</span>
-		</>
-	);
+  name,
+  state,
+  host,
+  sub_state,
+  description,
+  pinned,
+  onPin,
+}: SystemdUnit & { host: string; onPin: () => void }) {
+  return (
+    <>
+      <span className="overflow-hidden text-ellipsis text-nowrap font-mono">
+        {name}
+      </span>
+      <Badge
+        variant={
+          state === "active"
+            ? "default"
+            : state === "failed"
+              ? "destructive"
+              : "secondary"
+        }
+        className="justify-self-center"
+      >
+        {sub_state}
+      </Badge>
+      <span>{host}</span>
+      <span className="text-muted-foreground overflow-hidden text-ellipsis text-nowrap">
+        {description}
+      </span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6"
+        onClick={onPin}
+        title={pinned ? "Unpin" : "Pin"}
+      >
+        <Pin className={`h-3 w-3 ${pinned ? "fill-current" : ""}`} />
+      </Button>
+    </>
+  );
 }
 
 export function Services() {
-	const [open, setOpen] = React.useState(true);
-	const [tab, setTab] = React.useState("all");
-	const [search, setSearch] = React.useState("");
-	const [page, setPage] = React.useState(1);
-	const [debouncedSearch, setDebouncedSearch] = React.useState("");
-	const { mutate: pinService } = usePinService();
+  const [open, setOpen] = React.useState(true);
+  const [tab, setTab] = React.useState("all");
+  const [search, setSearch] = React.useState("");
+  const [page, setPage] = React.useState(1);
+  const { mutate: pinService } = usePinService();
+  const { mutate: unpinService } = useUnpinService();
+  const { data: devices } = useDevices();
 
-	React.useEffect(() => {
-		const timeout = setTimeout(() => {
-			setDebouncedSearch(search);
-			setPage(1);
-		}, 300);
-		return () => clearTimeout(timeout);
-	}, [search]);
+  React.useEffect(() => {
+    setPage(1);
+  }, [tab]);
 
-	React.useEffect(() => {
-		setPage(1);
-	}, [tab]);
+  const queries = useAllSystemdUnits();
 
-	const { data, isLoading } = useSystemdUnits({
-		state: tab,
-		search: debouncedSearch,
-		page,
-		limit: 10,
-	});
+  const filteredServices = React.useMemo(() => {
+    if (!queries.some((query) => query.data)) return [];
 
-	return (
-		<Card className="mb-4">
-			<CardHeader className="flex justify-between">
-				<CardTitle>Systemd Services</CardTitle>
-				<Button
-					size="icon"
-					variant="outline"
-					onClick={() => setOpen(!open)}
-					className="relative left-2 bottom-2"
-				>
-					{open ? <ChevronUp /> : <ChevronDown />}
-				</Button>
-			</CardHeader>
-			{open && (
-				<>
-					<CardContent className="flex gap-2 flex-wrap">
-						{TABS.map((t) => (
-							<Button
-								key={t.value}
-								variant={tab === t.value ? "default" : "outline"}
-								size="sm"
-								onClick={() => setTab(t.value)}
-							>
-								{t.label}
-							</Button>
-						))}
-						<Input
-							value={search}
-							onChange={(e) => setSearch(e.target.value)}
-							placeholder="Search..."
-							className="w-48 ml-auto"
-						/>
-					</CardContent>
-					<CardContent className="grid gap-2 grid-cols-[28px_1fr_80px_2fr] items-center">
-						<span />
-						<span className="text-xs text-muted-foreground font-medium">Unit</span>
-						<span className="text-xs text-muted-foreground font-medium text-center">State</span>
-						<span className="text-xs text-muted-foreground font-medium">Description</span>
-						{isLoading ? (
-							<span className="col-span-4 text-center text-muted-foreground py-4">Loading...</span>
-						) : data?.units.length === 0 ? (
-							<span className="col-span-4 text-center text-muted-foreground py-4">No services found</span>
-						) : (
-							data?.units.map((unit) => (
-								<Unit
-									key={unit.name}
-									{...unit}
-									onPin={() => pinService({ name: unit.name, pinned: unit.pinned })}
-								/>
-							))
-						)}
-					</CardContent>
-					{data && data.pages > 1 && (
-						<CardContent className="flex items-center justify-center gap-4">
-							<Button
-								variant="outline"
-								size="icon"
-								disabled={page <= 1}
-								onClick={() => setPage((p) => p - 1)}
-							>
-								<ChevronLeft />
-							</Button>
-							<span className="text-sm text-muted-foreground">
-								Page {data.page} of {data.pages}
-							</span>
-							<Button
-								variant="outline"
-								size="icon"
-								disabled={page >= data.pages}
-								onClick={() => setPage((p) => p + 1)}
-							>
-								<ChevronRight />
-							</Button>
-						</CardContent>
-					)}
-				</>
-			)}
-		</Card>
-	);
+    return queries
+      .flatMap(
+        (query, index) =>
+          query.data?.map((unit) => ({
+            ...unit,
+            host:
+              [API_HOST, ...(devices?.map(({ hostname }) => hostname) ?? [])][
+                index
+              ] ?? "",
+          })) ?? []
+      )
+      .filter((unit) => {
+        if (tab !== "all" && unit.state !== tab) {
+          return false;
+        }
+        if (search && !unit.name.toLowerCase().includes(search.toLowerCase())) {
+          return false;
+        }
+        return true;
+      });
+  }, [...queries.map((query) => query.data), tab, search, devices]);
+  const pages = Math.ceil(filteredServices.length / pageSize);
+  const displayedUnits = filteredServices.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
+  return (
+    <Card className="mb-4">
+      <CardHeader className="flex justify-between">
+        <CardTitle>Systemd Services</CardTitle>
+        <Button
+          size="icon"
+          variant="outline"
+          onClick={() => setOpen(!open)}
+          className="relative left-2 bottom-2"
+        >
+          {open ? <ChevronUp /> : <ChevronDown />}
+        </Button>
+      </CardHeader>
+      {open && (
+        <>
+          <CardContent className="flex gap-2 flex-wrap">
+            {TABS.map((t) => (
+              <Button
+                key={t.value}
+                variant={tab === t.value ? "default" : "outline"}
+                onClick={() => setTab(t.value)}
+              >
+                {t.label}
+              </Button>
+            ))}
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              className="w-48 ml-auto"
+            />
+          </CardContent>
+          <CardContent className="grid gap-2 grid-cols-[1fr_80px_1fr_2fr_28px] items-center text-xs">
+            <span className="text-muted-foreground font-medium">Unit</span>
+            <span className="text-muted-foreground font-medium text-center">
+              State
+            </span>
+            <span className="text-muted-foreground font-medium">Host</span>
+            <span className="text-muted-foreground font-medium">
+              Description
+            </span>
+            <span />
+            {queries.every((query) => query.isLoading) ? (
+              <span className="col-span-5 text-muted-foreground py-4">
+                <Loader className="animate-spin mx-auto" />
+              </span>
+            ) : displayedUnits.length === 0 ? (
+              <span className="col-span-5 text-muted-foreground">
+                No services found
+              </span>
+            ) : (
+              displayedUnits.map((unit) => (
+                <Unit
+                  key={unit.name + unit.host}
+                  {...unit}
+                  onPin={() =>
+                    (unit.pinned ? unpinService : pinService)({
+                      name: unit.name,
+                    })
+                  }
+                />
+              ))
+            )}
+          </CardContent>
+          {queries.some((query) => query.data) && pages > 1 && (
+            <CardContent className="flex items-center justify-end gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                <ChevronLeft />
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {page} of {pages}
+              </span>
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={page >= pages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                <ChevronRight />
+              </Button>
+            </CardContent>
+          )}
+        </>
+      )}
+    </Card>
+  );
 }

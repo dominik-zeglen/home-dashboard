@@ -7,13 +7,14 @@ from pydantic import ValidationError
 from plugins.hardware import hardware_info
 from plugins.monitored_devices import MonitoredDevicesPlugin
 from plugins.network import network_info
-from plugins.service import ServicePlugin
 from plugins.docker import DockerPlugin
 from plugins.todo import TodoListPlugin
 from plugins.weather import WeatherPlugin
 from plugins.links import LinkPlugin
 
 load_dotenv()
+
+from plugins.service import ServicePlugin
 
 debug = os.getenv("DEBUG", "False").lower() == "true"
 
@@ -38,18 +39,21 @@ monitored_devices = MonitoredDevicesPlugin(app)
 
 @app.get("/api/status")
 async def get_payload(request: Request):
-    payload = {
-        "services": services.get_payload(),
+    return {
         "docker": docker.get_containers(),
         "hardware": hardware_info(),
         "network": await network_info(),
     }
-    return payload
 
 
 @app.get("/")
 def index(request: Request):
     return send_file("public/index.html")
+
+
+@app.get("/favicon.ico")
+def favicon(request: Request):
+    return "", 204
 
 
 @app.get("/<path:path>")

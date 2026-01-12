@@ -7,13 +7,6 @@ export type DockerContainerStatus = {
   image: string;
 };
 
-export type ServiceStatus = {
-  url: string | null;
-  status: string;
-  name: string;
-  sv_name: string;
-};
-
 export type HardwareStatus = {
   cpu_idle_percentages: {
     all: number;
@@ -41,7 +34,6 @@ export type LocalIP = {
 };
 
 export type NodeStatus = {
-  services: ServiceStatus[];
   docker: DockerContainerStatus[];
   hardware: HardwareStatus;
   network: {

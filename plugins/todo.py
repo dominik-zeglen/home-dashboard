@@ -16,12 +16,12 @@ class TodoListPlugin:
         app.delete("/api/todos/<id>")(self.delete_todo)
 
     def get_todos(self, request: Request):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             todos = db.table("todos").all()
             return [{"id": todo.doc_id, "content": todo["content"]} for todo in todos]
 
     def put_todo(self, request: Request):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             todos_table = db.table("todos")
             data = request.json
             todo = Todo(**data)
@@ -31,7 +31,7 @@ class TodoListPlugin:
             return "", 204
 
     def patch_todo(self, request: Request, id: str):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             todos_table = db.table("todos")
             data = request.json
             todo = Todo(**data)
@@ -42,7 +42,7 @@ class TodoListPlugin:
             return "", 204
 
     def delete_todo(self, request: Request, id: str):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             todos_table = db.table("todos")
             todos_table.remove(doc_ids=[int(id)])
             return "", 204

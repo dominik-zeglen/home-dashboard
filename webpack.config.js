@@ -9,6 +9,22 @@ const config = (env, argv) => {
 
   return {
     entry: ["./src/index.tsx"],
+    optimization: {
+      splitChunks: {
+        chunks: "all",
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: "vendor",
+            chunks: "all",
+          },
+        },
+      },
+    },
+    performance: {
+      maxAssetSize: 512000,
+      maxEntrypointSize: 512000,
+    },
     module: {
       rules: [
         {
@@ -68,7 +84,7 @@ const config = (env, argv) => {
     output: {
       path: path.resolve(__dirname, "build"),
       publicPath: dev ? "/" : "/public/",
-      filename: "bundle.[hash].js",
+      filename: "[name].[fullhash].js",
     },
     plugins: [
       new HtmlWebpackPlugin({

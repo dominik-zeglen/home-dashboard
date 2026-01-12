@@ -27,12 +27,8 @@ class WeatherPlugin:
         self.app = app
         self.key = os.getenv("OPENWEATHERMAP_API_KEY")
 
-        if not self.key:
-            print(
-                "Warning: OPENWEATHERMAP_API_KEY not set, WeatherPlugin will not function."
-            )
-        else:
-            app.get("/api/weather")(self.get_weather)
+        app.get("/api/weather")(self.get_weather)
+        if self.key:
             app.put("/api/weather")(self.put_city)
             app.delete("/api/weather/<id>")(self.delete_city)
 
@@ -58,7 +54,7 @@ class WeatherPlugin:
         if not self.key:
             return []
 
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             cities = db.table("weather_cities").all()
             weather_data = []
             for city in cities:
@@ -70,7 +66,7 @@ class WeatherPlugin:
             return weather_data
 
     def put_city(self, request: Request):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             cities_table = db.table("weather_cities")
             data = request.json
 
@@ -97,7 +93,7 @@ class WeatherPlugin:
             return "", 204
 
     def delete_city(self, request: Request, id: str):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             cities_table = db.table("weather_cities")
             cities_table.remove(doc_ids=[int(id)])
             return "", 204

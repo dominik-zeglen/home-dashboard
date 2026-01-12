@@ -36,7 +36,7 @@ class LinkPlugin:
         app.delete("/api/link/<id>")(self.delete_link)
 
     def get_links(self, request: Request):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             links = db.table("links").all()
 
             return [
@@ -50,7 +50,7 @@ class LinkPlugin:
             ]
 
     def put_link(self, request: Request):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             links_table = db.table("links")
             data = request.json
             link = Link(**data)
@@ -76,7 +76,7 @@ class LinkPlugin:
             return "", 204
 
     def delete_link(self, request: Request, id: str):
-        with TinyDB("db.json") as db:
+        with TinyDB("data/db.json") as db:
             links_table = db.table("links")
             links_table.remove(doc_ids=[int(id)])
             return "", 204

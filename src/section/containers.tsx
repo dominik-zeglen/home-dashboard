@@ -4,9 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { API_HOST } from "../api/config.";
-import { CheckCircle2, ChevronDown, ChevronUp, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Loader,
+  Play,
+  RefreshCw,
+  Square,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useContainers } from "../api/docker";
+import { useContainerAction, useContainers } from "../api/docker";
 import { useDevices } from "../api/devices";
 
 function DockerContainer({
@@ -16,30 +25,56 @@ function DockerContainer({
   running,
   host,
 }: DockerContainerStatus & { host: string }) {
-  const { data: status } = useStatus(host);
+  const { mutate, isPending } = useContainerAction();
 
   return (
     <>
-      <span className="overflow-hidden text-ellipsis">{name}</span>
-      <Badge
-        variant={running ? "default" : "destructive"}
-        className="ml-2 float-right"
-      >
-        {running ? (
+      <span className="overflow-hidden text-ellipsis text-nowrap">{name}</span>
+      <Badge variant={running ? "default" : "destructive"} className="justify-self-center">
+        {running ? <CheckCircle2 /> : <XCircle />}
+      </Badge>
+      <span className="text-xs overflow-hidden text-ellipsis text-nowrap">
+        {image}
+      </span>
+      <span className="text-xs text-muted-foreground">{id.slice(0, 12)}</span>
+      <div className="flex gap-1 justify-end">
+        {isPending ? (
+          <Loader className="h-4 w-4 animate-spin" />
+        ) : running ? (
           <>
-            <CheckCircle2 /> OK
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => mutate({ host, containerId: id, action: "stop" })}
+              title="Stop"
+            >
+              <Square className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() =>
+                mutate({ host, containerId: id, action: "restart" })
+              }
+              title="Restart"
+            >
+              <RefreshCw className="h-3 w-3" />
+            </Button>
           </>
         ) : (
-          <>
-            <XCircle /> Problem
-          </>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() => mutate({ host, containerId: id, action: "start" })}
+            title="Start"
+          >
+            <Play className="h-3 w-3" />
+          </Button>
         )}
-      </Badge>
-      <div className="text-xs overflow-hidden text-ellipsis text-nowrap">
-        {image}
       </div>
-      <div className="text-xs">{status?.network.hostname}</div>
-      <div className="text-xs text-right">{id}</div>
     </>
   );
 }
@@ -73,7 +108,12 @@ export function DockerContainerList() {
               className="w-full"
             />
           </CardContent>
-          <CardContent className="grid gap-2 grid-cols-[200px_90px_3fr_1fr_1fr] items-center">
+          <CardContent className="grid gap-2 grid-cols-[200px_40px_3fr_100px_70px] items-center">
+            <span className="text-xs text-muted-foreground font-medium">Name</span>
+            <span className="text-xs text-muted-foreground font-medium text-center">Status</span>
+            <span className="text-xs text-muted-foreground font-medium">Image</span>
+            <span className="text-xs text-muted-foreground font-medium">ID</span>
+            <span className="text-xs text-muted-foreground font-medium text-right">Actions</span>
             {containers
               .flatMap(({ data }, idx) =>
                 (data?.docker ?? []).map((container) => ({

@@ -1,201 +1,157 @@
-import React, { useEffect } from "react";
-import { ServiceStatus, useStatus } from "../api/status";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Loader, Plus, Trash2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  PutService,
-  useDeleteService,
-  usePutService,
-  useServices,
-} from "../api/service";
-import { API_HOST } from "../api/config.";
-import { useDevices } from "../api/devices";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Pin } from "lucide-react";
+import { useSystemdUnits, SystemdUnit, usePinService } from "../api/service";
 
-function Service({
-  name,
-  status,
-  sv_name,
-  url,
-  host,
-}: ServiceStatus & { host: string }) {
-  const { data } = useStatus(host);
-  const { mutate: deleteService, isPending } = useDeleteService();
+const TABS = [
+	{ value: "all", label: "All" },
+	{ value: "active", label: "Active" },
+	{ value: "inactive", label: "Inactive" },
+	{ value: "failed", label: "Failed" },
+];
 
-  return (
-    <>
-      <span className="overflow-hidden text-ellipsis text-nowrap">{name}</span>
-      <Badge
-        variant={status === "active" ? "default" : "destructive"}
-        className="ml-2"
-      >
-        {status}
-      </Badge>
-      <span>{sv_name}</span>
-      <span>{data?.network.hostname}</span>
-      {url ? (
-        <a
-          className="text-blue-500 hover:underline overflow-hidden text-ellipsis text-nowrap block"
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {url}
-        </a>
-      ) : (
-        <div />
-      )}
-      <Button
-        variant="ghost"
-        className="text-destructive"
-        onClick={() => deleteService({ hostname: host, svName: sv_name })}
-      >
-        {isPending ? <Loader className="animate-spin" /> : <Trash2 />}
-      </Button>
-    </>
-  );
-}
-
-function AddService() {
-  const [open, setOpen] = React.useState(false);
-  const [form, setForm] = React.useState<
-    PutService & {
-      hostname: string;
-    }
-  >({
-    name: "",
-    url: "",
-    sv_name: "",
-    hostname: "",
-  });
-  const { mutate } = usePutService(() => {
-    setOpen(false);
-  });
-
-  useEffect(() => {
-    setForm({ name: "", url: "", sv_name: "", hostname: API_HOST });
-  }, [open]);
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    mutate({ hostname: form.hostname, data: form });
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={submit}>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="icon">
-            <Plus />
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Service</DialogTitle>
-          </DialogHeader>
-          <DialogDescription>
-            <Input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Name"
-              required
-              className="mb-4"
-            />
-            <Input
-              value={form.url}
-              onChange={(e) => setForm({ ...form, url: e.target.value })}
-              placeholder="URL"
-              className="mb-4"
-            />
-            <Input
-              value={form.sv_name}
-              onChange={(e) => setForm({ ...form, sv_name: e.target.value })}
-              placeholder="Linux Service Name"
-              required
-              className="mb-4"
-            />
-            <Input
-              value={form.hostname}
-              onChange={(e) => setForm({ ...form, hostname: e.target.value })}
-              placeholder="Host"
-              required
-            />
-          </DialogDescription>
-          <DialogFooter>
-            <Button type="submit" onClick={submit}>
-              Add Service
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </form>
-    </Dialog>
-  );
+function Unit({
+	name,
+	state,
+	sub_state,
+	description,
+	pinned,
+	onPin,
+}: SystemdUnit & { onPin: () => void }) {
+	return (
+		<>
+			<Button
+				variant="ghost"
+				size="icon"
+				className="h-6 w-6"
+				onClick={onPin}
+				title={pinned ? "Unpin" : "Pin"}
+			>
+				<Pin className={`h-3 w-3 ${pinned ? "fill-current" : ""}`} />
+			</Button>
+			<span className="overflow-hidden text-ellipsis text-nowrap font-mono text-sm">
+				{name}
+			</span>
+			<Badge
+				variant={state === "active" ? "default" : state === "failed" ? "destructive" : "secondary"}
+				className="justify-self-center"
+			>
+				{sub_state}
+			</Badge>
+			<span className="text-sm text-muted-foreground overflow-hidden text-ellipsis text-nowrap">
+				{description}
+			</span>
+		</>
+	);
 }
 
 export function Services() {
-  const [open, setOpen] = React.useState(true);
-  const [search, setSearch] = React.useState("");
-  const { data: devices } = useDevices();
-  const services = useServices();
+	const [open, setOpen] = React.useState(true);
+	const [tab, setTab] = React.useState("all");
+	const [search, setSearch] = React.useState("");
+	const [page, setPage] = React.useState(1);
+	const [debouncedSearch, setDebouncedSearch] = React.useState("");
+	const { mutate: pinService } = usePinService();
 
-  return (
-    <Card className="mb-4">
-      <CardHeader className="flex justify-between">
-        <CardTitle>Services</CardTitle>
-        <div className="relative left-2 bottom-2 flex gap-4">
-          <AddService />
-          <Button size="icon" variant="outline" onClick={() => setOpen(!open)}>
-            {open ? <ChevronUp /> : <ChevronDown />}
-          </Button>
-        </div>
-      </CardHeader>
-      {open && (
-        <>
-          <CardContent className="flex gap-4">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search services..."
-              className="w-full"
-            />
-            <Button variant="outline" size="icon">
-              <AddService />
-            </Button>
-          </CardContent>
-          <CardContent className="grid gap-2 grid-cols-[200px_70px_2fr_1fr_3fr_28px] items-center">
-            {services
-              .flatMap(({ data }, idx) =>
-                (data?.services ?? []).map((service) => ({
-                  ...service,
-                  host: idx === 0 ? API_HOST : devices![idx - 1].hostname,
-                })),
-              )
-              .sort(
-                (a, b) =>
-                  Number(b.status === "active") - Number(a.status === "active"),
-              )
-              .filter((service) =>
-                [service.name.toLowerCase(), service.sv_name.toLowerCase()]
-                  .join("\0\0")
-                  .includes(search.toLowerCase()),
-              )
-              .map((service) => (
-                <Service key={service.sv_name + service.host} {...service} />
-              ))}
-          </CardContent>
-        </>
-      )}
-    </Card>
-  );
+	React.useEffect(() => {
+		const timeout = setTimeout(() => {
+			setDebouncedSearch(search);
+			setPage(1);
+		}, 300);
+		return () => clearTimeout(timeout);
+	}, [search]);
+
+	React.useEffect(() => {
+		setPage(1);
+	}, [tab]);
+
+	const { data, isLoading } = useSystemdUnits({
+		state: tab,
+		search: debouncedSearch,
+		page,
+		limit: 10,
+	});
+
+	return (
+		<Card className="mb-4">
+			<CardHeader className="flex justify-between">
+				<CardTitle>Systemd Services</CardTitle>
+				<Button
+					size="icon"
+					variant="outline"
+					onClick={() => setOpen(!open)}
+					className="relative left-2 bottom-2"
+				>
+					{open ? <ChevronUp /> : <ChevronDown />}
+				</Button>
+			</CardHeader>
+			{open && (
+				<>
+					<CardContent className="flex gap-2 flex-wrap">
+						{TABS.map((t) => (
+							<Button
+								key={t.value}
+								variant={tab === t.value ? "default" : "outline"}
+								size="sm"
+								onClick={() => setTab(t.value)}
+							>
+								{t.label}
+							</Button>
+						))}
+						<Input
+							value={search}
+							onChange={(e) => setSearch(e.target.value)}
+							placeholder="Search..."
+							className="w-48 ml-auto"
+						/>
+					</CardContent>
+					<CardContent className="grid gap-2 grid-cols-[28px_1fr_80px_2fr] items-center">
+						<span />
+						<span className="text-xs text-muted-foreground font-medium">Unit</span>
+						<span className="text-xs text-muted-foreground font-medium text-center">State</span>
+						<span className="text-xs text-muted-foreground font-medium">Description</span>
+						{isLoading ? (
+							<span className="col-span-4 text-center text-muted-foreground py-4">Loading...</span>
+						) : data?.units.length === 0 ? (
+							<span className="col-span-4 text-center text-muted-foreground py-4">No services found</span>
+						) : (
+							data?.units.map((unit) => (
+								<Unit
+									key={unit.name}
+									{...unit}
+									onPin={() => pinService({ name: unit.name, pinned: unit.pinned })}
+								/>
+							))
+						)}
+					</CardContent>
+					{data && data.pages > 1 && (
+						<CardContent className="flex items-center justify-center gap-4">
+							<Button
+								variant="outline"
+								size="icon"
+								disabled={page <= 1}
+								onClick={() => setPage((p) => p - 1)}
+							>
+								<ChevronLeft />
+							</Button>
+							<span className="text-sm text-muted-foreground">
+								Page {data.page} of {data.pages}
+							</span>
+							<Button
+								variant="outline"
+								size="icon"
+								disabled={page >= data.pages}
+								onClick={() => setPage((p) => p + 1)}
+							>
+								<ChevronRight />
+							</Button>
+						</CardContent>
+					)}
+				</>
+			)}
+		</Card>
+	);
 }

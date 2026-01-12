@@ -1,0 +1,16 @@
+services:
+  dashboard:
+    build: .
+    container_name: home-dashboard
+    restart: unless-stopped
+    pid: host
+    network_mode: host
+    environment:
+      - PORT=18745
+      - DEBUG=${DEBUG:-false}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY}
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/class/thermal:/sys/class/thermal:ro
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro

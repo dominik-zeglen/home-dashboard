@@ -4,16 +4,27 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { createDevicesOptions, useDevices } from "./devices";
+import { useDevices } from "./devices";
 import { API_HOST } from "./config.";
 import { callApi } from "./client";
+
+export function createPinnedServicesOptions() {
+  return {
+    queryKey: ["services_pinned"],
+    queryFn: () =>
+      callApi("services/pinned") as Promise<{ host: string; name: string }[]>,
+  };
+}
+
+export function usePinnedServices() {
+  return useQuery(createPinnedServicesOptions());
+}
 
 export type SystemdUnit = {
   name: string;
   state: string;
   sub_state: string;
   description: string;
-  pinned: boolean;
 };
 
 export type SystemdUnitsResponse = SystemdUnit[];
@@ -46,14 +57,14 @@ export function usePinService() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ name }: { name: string }) =>
+    mutationFn: ({ name, host }: { name: string; host: string }) =>
       callApi(`services/pin`, {
         method: "POST",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, host }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["services"],
+        queryKey: ["services_pinned"],
       });
     },
   });
@@ -63,14 +74,14 @@ export function useUnpinService() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ name }: { name: string }) =>
+    mutationFn: ({ name, host }: { name: string; host: string }) =>
       callApi(`services/unpin`, {
         method: "POST",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, host }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["services"],
+        queryKey: ["services_pinned"],
       });
     },
   });

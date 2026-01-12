@@ -16,6 +16,7 @@ import {
   usePinService,
   useAllSystemdUnits,
   useUnpinService,
+  usePinnedServices,
 } from "../api/service";
 import { useDevices } from "../api/devices";
 import { API_HOST } from "../api/config.";
@@ -37,7 +38,7 @@ function Unit({
   description,
   pinned,
   onPin,
-}: SystemdUnit & { host: string; onPin: () => void }) {
+}: SystemdUnit & { host: string; pinned: boolean; onPin: () => void }) {
   return (
     <>
       <span className="overflow-hidden text-ellipsis text-nowrap font-mono">
@@ -72,6 +73,15 @@ function Unit({
   );
 }
 
+function isPinned(
+  unit: SystemdUnit & { host: string },
+  pinnedServices: { host: string; name: string }[] | undefined,
+) {
+  return !!pinnedServices?.some(
+    ({ host, name }) => host === unit.host && name === unit.name,
+  );
+}
+
 export function Services() {
   const [open, setOpen] = React.useState(true);
   const [tab, setTab] = React.useState("all");
@@ -80,6 +90,7 @@ export function Services() {
   const { mutate: pinService } = usePinService();
   const { mutate: unpinService } = useUnpinService();
   const { data: devices } = useDevices();
+  const { data: pinnedServices } = usePinnedServices();
 
   React.useEffect(() => {
     setPage(1);
@@ -109,8 +120,21 @@ export function Services() {
           return false;
         }
         return true;
-      });
-  }, [...queries.map((query) => query.data), tab, search, devices]);
+      })
+      .sort((a, b) =>
+        isPinned(a, pinnedServices) === isPinned(b, pinnedServices)
+          ? a.name.localeCompare(b.name)
+          : isPinned(a, pinnedServices)
+            ? -1
+            : 1,
+      );
+  }, [
+    ...queries.map((query) => query.data),
+    tab,
+    search,
+    devices,
+    pinnedServices,
+  ]);
   const pages = Math.ceil(filteredServices.length / pageSize);
   const displayedUnits = filteredServices.slice(
     (page - 1) * pageSize,
@@ -172,9 +196,13 @@ export function Services() {
                 <Unit
                   key={unit.name + unit.host}
                   {...unit}
+                  pinned={isPinned(unit, pinnedServices)}
                   onPin={() =>
-                    (unit.pinned ? unpinService : pinService)({
+                    (isPinned(unit, pinnedServices)
+                      ? unpinService
+                      : pinService)({
                       name: unit.name,
+                      host: unit.host,
                     })
                   }
                 />

@@ -7,7 +7,8 @@
     "start": "NODE_ENV=development webpack serve",
     "build": "rm -rf public && NODE_ENV=production webpack",
     "pack": "cd dist && zip -r bundle.zip *",
-    "deploy": "npm run public && npm run pack && node deploy.mjs"
+    "deploy": "npm run public && npm run pack && node deploy.mjs",
+    "prepare": "husky"
   },
   "author": "Dominik Zeglen",
   "license": "MIT",
@@ -20,6 +21,8 @@
     "esbuild-loader": "4.4.2",
     "fork-ts-checker-webpack-plugin": "9.1.0",
     "html-webpack-plugin": "5.6.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "mini-css-extract-plugin": "^2.9.4",
     "postcss-loader": "^8.2.0",
     "prettier": "^3.7.4",

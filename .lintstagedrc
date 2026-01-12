@@ -1,0 +1,7 @@
+{
+  "*.py": ["black"],
+  "*.js": ["prettier --write"],
+  "*.ts": ["prettier --write"],
+  "*.tsx": ["prettier --write"],
+  "*.scss": ["prettier --write"]
+}

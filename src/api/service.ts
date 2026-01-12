@@ -23,7 +23,7 @@ function createServicesOptions(hostname: string) {
     queryKey: ["services", hostname],
     queryFn: () =>
       fetch(`http://${hostname}/api/services`).then(
-        (res) => res.json() as Promise<SystemdUnitsResponse>
+        (res) => res.json() as Promise<SystemdUnitsResponse>,
       ),
   };
 }
@@ -37,7 +37,7 @@ export function useAllSystemdUnits() {
 
   return useQueries({
     queries: [{ hostname: API_HOST }, ...(devices ?? [])].map(({ hostname }) =>
-      createServicesOptions(hostname)
+      createServicesOptions(hostname),
     ),
   });
 }

@@ -30,7 +30,10 @@ function DockerContainer({
   return (
     <>
       <span className="overflow-hidden text-ellipsis text-nowrap">{name}</span>
-      <Badge variant={running ? "default" : "destructive"} className="justify-self-center">
+      <Badge
+        variant={running ? "default" : "destructive"}
+        className="justify-self-center"
+      >
         {running ? <CheckCircle2 /> : <XCircle />}
       </Badge>
       <span className="text-xs overflow-hidden text-ellipsis text-nowrap">
@@ -109,11 +112,21 @@ export function DockerContainerList() {
             />
           </CardContent>
           <CardContent className="grid gap-2 grid-cols-[200px_40px_3fr_100px_70px] items-center">
-            <span className="text-xs text-muted-foreground font-medium">Name</span>
-            <span className="text-xs text-muted-foreground font-medium text-center">Status</span>
-            <span className="text-xs text-muted-foreground font-medium">Image</span>
-            <span className="text-xs text-muted-foreground font-medium">ID</span>
-            <span className="text-xs text-muted-foreground font-medium text-right">Actions</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              Name
+            </span>
+            <span className="text-xs text-muted-foreground font-medium text-center">
+              Status
+            </span>
+            <span className="text-xs text-muted-foreground font-medium">
+              Image
+            </span>
+            <span className="text-xs text-muted-foreground font-medium">
+              ID
+            </span>
+            <span className="text-xs text-muted-foreground font-medium text-right">
+              Actions
+            </span>
             {containers
               .flatMap(({ data }, idx) =>
                 (data?.docker ?? []).map((container) => ({

@@ -32,8 +32,9 @@
   --c: linear-gradient(currentColor 0 0);
   --r1: radial-gradient(farthest-side at bottom, currentColor 93%, #0000);
   --r2: radial-gradient(farthest-side at top, currentColor 93%, #0000);
-  background: var(--c), var(--r1), var(--r2), var(--c), var(--r1), var(--r2),
-    var(--c), var(--r1), var(--r2);
+  background:
+    var(--c), var(--r1), var(--r2), var(--c), var(--r1), var(--r2), var(--c),
+    var(--r1), var(--r2);
   background-repeat: no-repeat;
   animation: l1 1s infinite alternate;
 }

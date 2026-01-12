@@ -99,7 +99,7 @@ export function Services() {
               [API_HOST, ...(devices?.map(({ hostname }) => hostname) ?? [])][
                 index
               ] ?? "",
-          })) ?? []
+          })) ?? [],
       )
       .filter((unit) => {
         if (tab !== "all" && unit.state !== tab) {
@@ -114,7 +114,7 @@ export function Services() {
   const pages = Math.ceil(filteredServices.length / pageSize);
   const displayedUnits = filteredServices.slice(
     (page - 1) * pageSize,
-    page * pageSize
+    page * pageSize,
   );
 
   return (

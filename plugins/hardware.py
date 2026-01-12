@@ -17,7 +17,11 @@ def get_temperature():
                 try:
                     with open(f"/sys/class/thermal/{dir}/type", "r") as f:
                         type_str = f.read().strip().lower()
-                        if "cpu" in type_str or "soc" in type_str or "pkg_temp" in type_str:
+                        if (
+                            "cpu" in type_str
+                            or "soc" in type_str
+                            or "pkg_temp" in type_str
+                        ):
                             with open(f"/sys/class/thermal/{dir}/temp", "r") as temp_f:
                                 temp_milli = int(temp_f.read().strip())
                                 return str(temp_milli / 1000.0)

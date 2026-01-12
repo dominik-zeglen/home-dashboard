@@ -8,7 +8,11 @@ class DockerPlugin:
 
     def __init__(self, app):
         try:
-            subprocess.run(["docker", "version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(
+                ["docker", "version"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
         except FileNotFoundError:
             self.engine = "nerdctl"
         app.post("/api/docker/<container_id>/start")(self.start_container)

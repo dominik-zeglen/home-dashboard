@@ -1,10 +1,4 @@
-import {
-  useQuery,
-  useQueries,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { useDevices } from "./devices";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_HOST } from "./config.";
 import { callApi } from "./client";
 
@@ -43,14 +37,16 @@ export function useSystemdUnits() {
   return useQuery(createServicesOptions(API_HOST));
 }
 
-export function useAllSystemdUnits() {
-  const { data: devices } = useDevices();
+export function createAllSystemdUnitsOptions() {
+  return {
+    queryKey: ["services"],
+    queryFn: () =>
+      callApi("services/all") as Promise<Array<SystemdUnit & { host: string }>>,
+  };
+}
 
-  return useQueries({
-    queries: [{ hostname: API_HOST }, ...(devices ?? [])].map(({ hostname }) =>
-      createServicesOptions(hostname),
-    ),
-  });
+export function useAllSystemdUnits() {
+  return useQuery(createAllSystemdUnitsOptions());
 }
 
 export function usePinService() {

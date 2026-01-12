@@ -91,27 +91,16 @@ export function Services() {
   const { mutate: unpinService } = useUnpinService();
   const { data: devices } = useDevices();
   const { data: pinnedServices } = usePinnedServices();
+  const { data: services, isLoading } = useAllSystemdUnits();
 
   React.useEffect(() => {
     setPage(1);
-  }, [tab]);
-
-  const queries = useAllSystemdUnits();
+  }, [tab, search]);
 
   const filteredServices = React.useMemo(() => {
-    if (!queries.some((query) => query.data)) return [];
+    if (!services) return [];
 
-    return queries
-      .flatMap(
-        (query, index) =>
-          query.data?.map((unit) => ({
-            ...unit,
-            host:
-              [API_HOST, ...(devices?.map(({ hostname }) => hostname) ?? [])][
-                index
-              ] ?? "",
-          })) ?? [],
-      )
+    return services
       .filter((unit) => {
         if (tab !== "all" && unit.state !== tab) {
           return false;
@@ -128,13 +117,7 @@ export function Services() {
             ? -1
             : 1,
       );
-  }, [
-    ...queries.map((query) => query.data),
-    tab,
-    search,
-    devices,
-    pinnedServices,
-  ]);
+  }, [services, tab, search, devices, pinnedServices]);
   const pages = Math.ceil(filteredServices.length / pageSize);
   const displayedUnits = filteredServices.slice(
     (page - 1) * pageSize,
@@ -183,7 +166,7 @@ export function Services() {
               Description
             </span>
             <span />
-            {queries.every((query) => query.isLoading) ? (
+            {isLoading ? (
               <span className="col-span-5 text-muted-foreground py-4">
                 <Loader className="animate-spin mx-auto" />
               </span>
@@ -209,7 +192,7 @@ export function Services() {
               ))
             )}
           </CardContent>
-          {queries.some((query) => query.data) && pages > 1 && (
+          {!!services && pages > 1 && (
             <CardContent className="flex items-center justify-end gap-4">
               <Button
                 variant="outline"

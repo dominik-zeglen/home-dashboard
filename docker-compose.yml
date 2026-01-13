@@ -6,6 +6,8 @@ services:
     pid: host
     ports:
       - "18745:18745"
+    security_opt:
+      - apparmor=unconfined
     environment:
       - PORT=18745
       - DEBUG=${DEBUG:-false}

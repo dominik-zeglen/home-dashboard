@@ -28,8 +28,8 @@ RUN pip install --no-cache-dir --root-user-action=ignore -r requirements.txt
 
 COPY server.py .
 COPY plugins/ ./plugins/
-COPY public/ ./public/
-COPY --from=frontend-builder /app/build/ ./public/
+COPY migrations/ ./migrations/
+COPY --from=frontend-builder /app/public/ ./public/
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 

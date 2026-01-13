@@ -37,16 +37,25 @@ export function useSystemdUnits() {
   return useQuery(createServicesOptions(API_HOST));
 }
 
-export function createAllSystemdUnitsOptions() {
+export function createAllSystemdUnitsOptions(bust = false) {
   return {
     queryKey: ["services"],
     queryFn: () =>
-      callApi("services/all") as Promise<Array<SystemdUnit & { host: string }>>,
+      callApi(`services/all?bust=${bust}`) as Promise<
+        Array<SystemdUnit & { host: string }>
+      >,
   };
 }
 
 export function useAllSystemdUnits() {
   return useQuery(createAllSystemdUnitsOptions());
+}
+
+export function useAllSystemdUnitsBust() {
+  return useQuery({
+    ...createAllSystemdUnitsOptions(true),
+    refetchOnMount: false,
+  });
 }
 
 export function usePinService() {

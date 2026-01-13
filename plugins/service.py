@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from .utils import get_ttl_hash
 import aiohttp
 import asyncio
+from random import random
 
 
 async def fetch_data(session, url):
@@ -29,7 +30,10 @@ class ServicePlugin:
         app.post("/api/services/unpin")(self.unpin_service)
 
     async def handle_get_all_services(self, request: Request):
-        return await self.get_all_services(cache_key=get_ttl_hash(300))
+        bust = request.args.get("bust", "false").lower() == "true"
+        return await self.get_all_services(
+            cache_key=random() if bust else get_ttl_hash(300)
+        )
 
     @alru_cache(maxsize=1)
     async def get_all_services(self, cache_key: int):

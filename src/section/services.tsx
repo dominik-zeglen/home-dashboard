@@ -10,6 +10,7 @@ import {
   ChevronUp,
   Loader,
   Pin,
+  RefreshCcw,
 } from "lucide-react";
 import {
   SystemdUnit,
@@ -17,6 +18,7 @@ import {
   useAllSystemdUnits,
   useUnpinService,
   usePinnedServices,
+  useAllSystemdUnitsBust,
 } from "../api/service";
 import { useDevices } from "../api/devices";
 import { API_HOST } from "../api/config.";
@@ -92,6 +94,7 @@ export function Services() {
   const { data: devices } = useDevices();
   const { data: pinnedServices } = usePinnedServices();
   const { data: services, isLoading } = useAllSystemdUnits();
+  const { refetch: refetchServices, isRefetching } = useAllSystemdUnitsBust();
 
   React.useEffect(() => {
     setPage(1);
@@ -128,14 +131,18 @@ export function Services() {
     <Card className="mb-4">
       <CardHeader className="flex justify-between">
         <CardTitle>Systemd Services</CardTitle>
-        <Button
-          size="icon"
-          variant="outline"
-          onClick={() => setOpen(!open)}
-          className="relative left-2 bottom-2"
-        >
-          {open ? <ChevronUp /> : <ChevronDown />}
-        </Button>
+        <div className="flex gap-4 relative left-2 bottom-2">
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => refetchServices({})}
+          >
+            <RefreshCcw />
+          </Button>
+          <Button size="icon" variant="outline" onClick={() => setOpen(!open)}>
+            {open ? <ChevronUp /> : <ChevronDown />}
+          </Button>
+        </div>
       </CardHeader>
       {open && (
         <>
@@ -166,7 +173,7 @@ export function Services() {
               Description
             </span>
             <span />
-            {isLoading ? (
+            {isLoading || isRefetching ? (
               <span className="col-span-5 text-muted-foreground py-4">
                 <Loader className="animate-spin mx-auto" />
               </span>

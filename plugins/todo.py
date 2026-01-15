@@ -1,9 +1,10 @@
 from microdot import Microdot, Request
 from pydantic import BaseModel, Field
-from tinydb import TinyDB, where
+from tinydb import TinyDB
+from datetime import datetime
 
 
-class Todo(BaseModel):
+class TodoInput(BaseModel):
     content: str = Field(..., min_length=1)
 
 
@@ -18,15 +19,18 @@ class TodoListPlugin:
     def get_todos(self, request: Request):
         with TinyDB("data/db.json") as db:
             todos = db.table("todos").all()
-            return [{"id": todo.doc_id, "content": todo["content"]} for todo in todos]
+            return [{"id": todo.doc_id, **todo} for todo in todos]
 
     def put_todo(self, request: Request):
         with TinyDB("data/db.json") as db:
             todos_table = db.table("todos")
             data = request.json
-            todo = Todo(**data)
+            todo_input = TodoInput(**data)
             todos_table.insert(
-                todo.model_dump(mode="json"),
+                {
+                    **todo_input.model_dump(mode="json"),
+                    "created_at": datetime.utcnow().isoformat(),
+                }
             )
             return "", 204
 
@@ -34,10 +38,18 @@ class TodoListPlugin:
         with TinyDB("data/db.json") as db:
             todos_table = db.table("todos")
             data = request.json
-            todo = Todo(**data)
+            todo_input = TodoInput(**data)
+            todo = todos_table.get(doc_id=int(id))
+
+            if not todo:
+                return {"error": "Todo not found"}, 404
+
             todos_table.update(
-                todo.model_dump(mode="json"),
-                doc_ids=[int(id)],
+                {
+                    **todo_input.model_dump(mode="json"),
+                    "created_at": todo["created_at"],
+                },
+                doc_ids=[todo.doc_id],
             )
             return "", 204
 

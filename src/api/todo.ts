@@ -1,11 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { callApi } from "./client";
 
 export function createTodosOptions(hostname: string) {
   return {
     queryKey: ["todos", hostname],
     queryFn: () =>
-      fetch(`http://${hostname}/api/todos`).then(
-        (res) => res.json() as Promise<{ id: number; content: string }[]>,
+      callApi("todos").then(
+        (res: { id: number; content: string; created_at: string }[]) =>
+          res.map((todo) => ({
+            ...todo,
+            created_at: new Date(todo.created_at).getTime(),
+          })),
       ),
   };
 }

@@ -8,7 +8,7 @@ def apply():
         all_todos = table.all()
 
         for todo in all_todos:
-            updated = {**todo, "created_at": datetime().utcnow().isoformat()}
+            updated = {**todo, "created_at": datetime.now().isoformat()}
             table.update(updated, doc_ids=[todo.doc_id])
 
 

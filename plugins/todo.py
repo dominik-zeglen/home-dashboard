@@ -29,7 +29,7 @@ class TodoListPlugin:
             todos_table.insert(
                 {
                     **todo_input.model_dump(mode="json"),
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": datetime.now().isoformat(),
                 }
             )
             return "", 204

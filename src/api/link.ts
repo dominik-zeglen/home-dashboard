@@ -55,3 +55,21 @@ export function useDeleteLink(onSuccess?: () => void) {
     },
   });
 }
+
+export function useLinkOrder(onSuccess?: () => void) {
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: (variables: { id: number; index: number }) =>
+      callApi("link/order", {
+        method: "POST",
+        body: JSON.stringify(variables),
+      }),
+    onSuccess: () => {
+      client.invalidateQueries({
+        queryKey: createLinksOptions().queryKey,
+      });
+      onSuccess?.();
+    },
+  });
+}

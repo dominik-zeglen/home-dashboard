@@ -28,16 +28,22 @@ class Link(BaseModel):
     icon: str | None = Field(default=None)
 
 
+class LinkOrderInput(BaseModel):
+    id: int = Field(..., description="The ID of the link", ge=0)
+    index: int = Field(..., description="The new index of the link", ge=0)
+
+
 class LinkPlugin:
     def __init__(self, app: Microdot):
         self.app = app
         app.get("/api/link")(self.get_links)
         app.put("/api/link")(self.put_link)
         app.delete("/api/link/<id>")(self.delete_link)
+        app.post("/api/link/order")(self.reorder_links)
 
     def get_links(self, request: Request):
         with TinyDB("data/db.json") as db:
-            links = db.table("links").all()
+            links = sorted(db.table("links").all(), key=lambda x: x["order"])
 
             return [
                 {
@@ -79,4 +85,21 @@ class LinkPlugin:
         with TinyDB("data/db.json") as db:
             links_table = db.table("links")
             links_table.remove(doc_ids=[int(id)])
+            return "", 204
+
+    def reorder_links(self, request: Request):
+        input_data = LinkOrderInput(**request.json)
+
+        with TinyDB("data/db.json") as db:
+            links_table = db.table("links")
+            all_links = links_table.all()
+
+            for link in all_links:
+                if link["order"] >= input_data.index:
+                    links_table.update(
+                        {"order": link["order"] + 1}, doc_ids=[link.doc_id]
+                    )
+
+            links_table.update({"order": input_data.index}, doc_ids=[input_data.id])
+
             return "", 204

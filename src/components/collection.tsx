@@ -7,7 +7,7 @@ export function Collection<T extends { id: any }>({
   empty = "No items found.",
 }: {
   data: T[] | undefined;
-  renderItem: React.ComponentType<T>;
+  renderItem: React.ComponentType<T & { index: number }>;
   empty?: React.ReactNode;
 }) {
   if (data === undefined)
@@ -18,5 +18,7 @@ export function Collection<T extends { id: any }>({
     );
   if (data.length === 0)
     return <div className="text-muted-foreground">{empty}</div>;
-  return data.map((item) => <Item key={item.id} {...item} />);
+  return data.map((item, index) => (
+    <Item key={item.id} index={index} {...item} />
+  ));
 }

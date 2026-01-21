@@ -36,7 +36,6 @@ export function usePutCity(onSuccess?: () => void) {
         body: JSON.stringify(variables.data),
       }),
     onSuccess: () => {
-      console.log("City added successfully");
       client.invalidateQueries({
         queryKey: createWeatherOptions().queryKey,
         refetchType: "all",
@@ -55,7 +54,6 @@ export function useDeleteCity(onSuccess?: () => void) {
         method: "DELETE",
       }),
     onSuccess: (_data) => {
-      console.log("City removed successfully");
       client.invalidateQueries({
         queryKey: createWeatherOptions().queryKey,
         refetchType: "all",

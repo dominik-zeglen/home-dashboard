@@ -281,7 +281,6 @@ export function Links() {
 
   const sortedData = React.useMemo(() => {
     if (!data) return data;
-    console.log(draggedIndex, insertBeforeIndex);
     if (
       insertBeforeIndex === null ||
       draggedIndex === null ||

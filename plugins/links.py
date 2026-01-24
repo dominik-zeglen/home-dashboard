@@ -77,7 +77,10 @@ class LinkPlugin:
                             )
 
             links_table.insert(
-                link.model_dump(mode="json"),
+                {
+                    **link.model_dump(mode="json"),
+                    "order": len(links_table.all()),
+                }
             )
             return "", 204
 

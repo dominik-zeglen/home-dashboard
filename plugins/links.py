@@ -41,6 +41,13 @@ class LinkPlugin:
         app.delete("/api/link/<id>")(self.delete_link)
         app.post("/api/link/order")(self.reorder_links)
 
+    def reindex_links(self, db: TinyDB):
+        links_table = db.table("links")
+        all_links = sorted(links_table.all(), key=lambda x: x["order"])
+
+        for index, link in enumerate(all_links):
+            links_table.update({"order": index}, doc_ids=[link.doc_id])
+
     def get_links(self, request: Request):
         with TinyDB("data/db.json") as db:
             links = sorted(db.table("links").all(), key=lambda x: x["order"])
@@ -82,12 +89,15 @@ class LinkPlugin:
                     "order": len(links_table.all()),
                 }
             )
+            self.reindex_links(db)
+
             return "", 204
 
     def delete_link(self, request: Request, id: str):
         with TinyDB("data/db.json") as db:
             links_table = db.table("links")
             links_table.remove(doc_ids=[int(id)])
+            self.reindex_links(db)
             return "", 204
 
     def reorder_links(self, request: Request):
@@ -104,5 +114,6 @@ class LinkPlugin:
                     )
 
             links_table.update({"order": input_data.index}, doc_ids=[input_data.id])
+            self.reindex_links(db)
 
             return "", 204
